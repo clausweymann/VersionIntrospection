@@ -7,12 +7,13 @@
 //
 
 #import "SPRYAppDelegate.h"
+#import <VersionIntrospection/VersionIntrospection.h>
 
 @implementation SPRYAppDelegate
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-    // Override point for customization after application launch.
+    NSLog(@"PodVersion: %@",[VersionIntrospection sharedIntrospection].versionsForDependency);
     return YES;
 }
 							
