@@ -1,0 +1,12 @@
+source 'https://github.com/CocoaPods/Specs.git'
+
+target 'VersionIntrospection', :exclusive => true do
+  pod "VersionIntrospection", :path => "../"
+end
+
+target 'Tests', :exclusive => true do
+  pod "VersionIntrospection", :path => "../"
+
+  pod 'Specta'
+  pod 'Expecta'
+end
