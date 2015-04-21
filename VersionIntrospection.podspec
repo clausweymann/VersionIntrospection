@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = "VersionIntrospection"
-  s.version          = "0.1.0"
+  s.version          = "0.1.1"
   s.summary          = "Simple tool to expose versions of dependencies by parsing Podfile.lock"
   s.homepage         = "https://github.com/clausweymann/VersionIntrospection"
   s.license          = 'MIT'
