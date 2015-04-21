@@ -1,6 +1,6 @@
 # VersionIntrospection
 
-[![CI Status](http://img.shields.io/travis/Claus Weymann/VersionIntrospection.svg?style=flat)](https://travis-ci.org/Claus Weymann/VersionIntrospection)
+[![CI Status](http://img.shields.io/travis/clausweymann/VersionIntrospection.svg?style=flat)](https://travis-ci.org/clausweymann/VersionIntrospection)
 [![Version](https://img.shields.io/cocoapods/v/VersionIntrospection.svg?style=flat)](http://cocoapods.org/pods/VersionIntrospection)
 [![License](https://img.shields.io/cocoapods/l/VersionIntrospection.svg?style=flat)](http://cocoapods.org/pods/VersionIntrospection)
 [![Platform](https://img.shields.io/cocoapods/p/VersionIntrospection.svg?style=flat)](http://cocoapods.org/pods/VersionIntrospection)
