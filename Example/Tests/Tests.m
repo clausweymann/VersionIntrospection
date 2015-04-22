@@ -5,41 +5,25 @@
 //  Created by Claus Weymann on 04/21/2015.
 //  Copyright (c) 2014 Claus Weymann. All rights reserved.
 //
+#import <VersionIntrospection/VersionIntrospection.h>
+
+@interface VersionIntrospection(Testing)
+
+@property (nonatomic,strong) NSString* podfileLockContent;
+
+@end
 
 SpecBegin(InitialSpecs)
 
-describe(@"these will fail", ^{
-
-    it(@"can do maths", ^{
-        expect(1).to.equal(2);
-    });
-
-    it(@"can read", ^{
-        expect(@"number").to.equal(@"string");
+describe(@"parser", ^{
+    
+    it(@"can't parse empty file", ^{
+        [VersionIntrospection sharedIntrospection].podfileLockContent = @"";
+        id versionForDependency = [VersionIntrospection sharedIntrospection].versionsForDependency;
+        expect(versionForDependency).beAKindOf([NSDictionary class]);
+        expect([versionForDependency count]).to.equal(0);
     });
     
-    it(@"will wait for 10 seconds and fail", ^{
-        waitUntil(^(DoneCallback done) {
-        
-        });
-    });
-});
-
-describe(@"these will pass", ^{
-    
-    it(@"can do maths", ^{
-        expect(1).beLessThan(23);
-    });
-    
-    it(@"can read", ^{
-        expect(@"team").toNot.contain(@"I");
-    });
-    
-    it(@"will wait and succeed", ^AsyncBlock {
-        waitUntil(^(DoneCallback done) {
-            done();
-        });
-    });
 });
 
 SpecEnd

@@ -9,6 +9,8 @@
 #import "VersionIntrospection.h"
 @interface VersionIntrospection()
 
+@property (nonatomic,strong) NSString* podfileLockContent;
+
 @end
 
 @implementation VersionIntrospection
@@ -43,16 +45,30 @@
     }
     return self;
 }
+
+-(NSString *)podfileLockContent
+{
+    if (!_podfileLockContent) {
+        NSError* error;
+        NSURL* podfileLockURL = [[NSBundle mainBundle] URLForResource:@"Podfile" withExtension:@"lock"];
+        _podfileLockContent = [[NSString alloc] initWithContentsOfURL:podfileLockURL encoding:NSUTF8StringEncoding error:&error];
+        if (!_podfileLockContent) {
+            NSLog(@"ERROR: failed to read Podfile.lock, make sure you have added it to the target in your projekt (this needs to be done manually at the moment). %@", error);
+            return nil;
+        }
+
+    }
+    return _podfileLockContent;
+}
+
 #pragma mark Parsing
 
--(void)parsePodfileLock
+-(BOOL)parsePodfileLock
 {
-    NSError* error;
-    NSURL* podfileLockURL = [[NSBundle mainBundle] URLForResource:@"Podfile" withExtension:@"lock"];
-    NSString* content = [[NSString alloc] initWithContentsOfURL:podfileLockURL encoding:NSUTF8StringEncoding error:&error];
-    if (!content) {
-        NSLog(@"ERROR: failed to read Podfile.lock, make sure you have added it to the target in your projekt (this needs to be done manually at the moment). %@", error);
-        return;
+    NSString* content = self.podfileLockContent;
+    if (!content || [content length] == 0) {
+        NSLog(@"ERROR: no content to parse");
+        return NO;
     }
     //NSLog(@"Podfile.lock:\n\t%@",content);
     
@@ -68,26 +84,27 @@
     if (success)
     {
         //NSLog(@"\n\nPodsSection:\n\t%@",podsSecition);
-        [self parsePodsSection:podsSecition];
+        success = [self parsePodsSection:podsSecition];
     }
     else
     {
         NSLog(@"WARNING: could not find PODS: section in Podfile.lock");
     }
-
+    return success;
 }
 
 
--(void)parsePodsSection:(NSString*)podsSection
+-(BOOL)parsePodsSection:(NSString*)podsSection
 {
+    BOOL success = YES;
     NSArray* podsSectionLines = [podsSection componentsSeparatedByString:@"\n"];
     for (NSString* entry in podsSectionLines) {
-        [self parsePodsEntry:entry];
+        success = success & [self parsePodsEntry:entry];
     }
-    
+    return success;
 }
 
--(void)parsePodsEntry:(NSString*)podsEntry
+-(BOOL)parsePodsEntry:(NSString*)podsEntry
 {
     NSArray* podsEntryComponents = [podsEntry componentsSeparatedByCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@" ()"]];
     //NSLog(@"podsEntryComponents: %@", podsEntryComponents);
@@ -96,8 +113,13 @@
         NSString* version = podsEntryComponents[5];
         if (version && dependency) {
             self.versionsForDependency[dependency] = version;
+            return YES;
         }
     }
+    if ([podsEntryComponents count] == 1) {
+        return [podsEntryComponents.firstObject isEqualToString:@"PODS:"];
+    }
+    return NO;
 }
 
 
