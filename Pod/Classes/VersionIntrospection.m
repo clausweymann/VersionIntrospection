@@ -53,7 +53,7 @@
         NSURL* podfileLockURL = [[NSBundle mainBundle] URLForResource:@"Podfile" withExtension:@"lock"];
         _podfileLockContent = [[NSString alloc] initWithContentsOfURL:podfileLockURL encoding:NSUTF8StringEncoding error:&error];
         if (!_podfileLockContent) {
-            NSLog(@"ERROR: failed to read Podfile.lock, make sure you have added it to the target in your projekt (this needs to be done manually at the moment). %@", error);
+            NSLog(@"ERROR: failed to read Podfile.lock, make sure you have added it to the target in your project (this needs to be done manually at the moment). %@", error);
             return nil;
         }
 
@@ -74,17 +74,17 @@
     
     NSScanner *scanner = [[NSScanner alloc] initWithString:content];
     //[scanner setCharactersToBeSkipped:[NSCharacterSet characterSetWithCharactersInString:@","]];
-    NSString* podsSecition;
+    NSString* podsSection;
     
     //ignore anything Before PODS:
     BOOL success = [scanner scanUpToString:@"PODS:" intoString:nil];
     //read anything Before DEPENDENCIES:
-    success = [scanner scanUpToString:@"DEPENDENCIES:" intoString:&podsSecition];
+    success = [scanner scanUpToString:@"DEPENDENCIES:" intoString:&podsSection];
     
     if (success)
     {
-        //NSLog(@"\n\nPodsSection:\n\t%@",podsSecition);
-        success = [self parsePodsSection:podsSecition];
+        //NSLog(@"\n\nPodsSection:\n\t%@",podsSection);
+        success = [self parsePodsSection:podsSection];
     }
     else
     {
