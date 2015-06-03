@@ -77,9 +77,9 @@
     NSString* podsSection;
     
     //ignore anything Before PODS:
-    BOOL success = [scanner scanUpToString:@"PODS:" intoString:nil];
+    [scanner scanUpToString:@"PODS:" intoString:nil];
     //read anything Before DEPENDENCIES:
-    success = [scanner scanUpToString:@"DEPENDENCIES:" intoString:&podsSection];
+    BOOL success = [scanner scanUpToString:@"DEPENDENCIES:" intoString:&podsSection];
     
     if (success)
     {
