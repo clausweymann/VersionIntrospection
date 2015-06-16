@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = "VersionIntrospection"
-  s.version          = "0.1.3"
+  s.version          = "0.2.0-Dev"
   s.summary          = "Simple tool to expose versions of dependencies by parsing Podfile.lock"
   s.homepage         = "https://github.com/clausweymann/VersionIntrospection"
   s.license          = 'MIT'
@@ -12,5 +12,6 @@ Pod::Spec.new do |s|
   
   s.requires_arc = true
 
-  s.source_files = 'Pod/Classes/**/*'
+s.source_files = 'Pod/Classes/**/*.{h,m}'
+s.resources = 'Pod/Classes/**/*.{xib}'
 end
