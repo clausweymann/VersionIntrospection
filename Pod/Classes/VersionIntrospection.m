@@ -220,7 +220,8 @@
         appInfo.name = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleName"];
         appInfo.version = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleVersion"];
         appInfo.order = 0;
-        _versionInformation[appInfo.name] = appInfo;
+        appInfo.gitHash = @"AppVersion";
+        _versionInformation[[NSString stringWithFormat:@"%@ ",appInfo.name]] = appInfo;//store Under name + SPACE to avoid overriding dependecy with same name (frequently the case with pod sample projects )
     }
     return _versionInformation;
 }

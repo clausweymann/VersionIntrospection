@@ -14,4 +14,5 @@ Pod::Spec.new do |s|
 
 s.source_files = 'Pod/Classes/**/*.{h,m}'
 s.resources = 'Pod/Classes/**/*.{xib}'
+s.osx.exclude_files = 'Pod/Classes/ios/**/*.*'
 end
