@@ -22,20 +22,23 @@
 @synthesize versionInformation = _versionInformation;
 
 #pragma mark - Public
+
 -(NSMutableDictionary *)versionsForDependency
 {
     if (!_versionsForDependency) {
-        [self parsePodfileLock];
+        [self fillDependencyInformation];
     }
     return _versionsForDependency;
 }
+
 -(NSMutableDictionary *)checksumForDependency
 {
     if (!_checksumForDependency) {
-        [self parsePodfileLock];
+        [self fillDependencyInformation];
     }
     return _checksumForDependency;
 }
+
 + (VersionIntrospection*) sharedIntrospection {
     static VersionIntrospection* sharedInstance = nil;
     static dispatch_once_t onceToken;
@@ -47,6 +50,7 @@
 }
 
 #pragma mark - Private
+
 - (instancetype)init
 {
     self = [super init];
@@ -72,7 +76,7 @@
 
 #pragma mark Parsing
 
--(BOOL)parsePodfileLock
+-(BOOL)fillDependencyInformation
 {
     _checksumForDependency = [NSMutableDictionary dictionary];
     _versionsForDependency = [NSMutableDictionary dictionary];
@@ -123,16 +127,31 @@
 {
     NSArray* podsEntryComponents = [podsEntry componentsSeparatedByCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@" ()"]];
     //NSLog(@"podsEntryComponents: %@", podsEntryComponents);
-    if ([podsEntryComponents count] == 7) {
-        NSString* dependency = [podsEntryComponents[3] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
-        NSString* version = [podsEntryComponents[5] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+    if ([podsEntryComponents count] > 1) {
+        BOOL foundName = NO;
+        NSString* dependency;
+        NSString* version;
+        for (NSString* component in podsEntryComponents) {
+            if ([component length] == 0) continue;
+            if ([component isEqualToString:@"-"]) continue;
+            if ([component isEqualToString:@":"]) continue;
+            if (!foundName) {
+                dependency = component;
+                foundName = YES;
+            }
+            else
+            {
+                version = component;
+            }
+        }
+
         if ([version length] > 0 && [dependency length] > 0) {
             self.versionsForDependency[dependency] = version;
             return YES;
         }
     }
     if ([podsEntryComponents count] == 1) {
-        return [podsEntryComponents.firstObject isEqualToString:@"PODS:"];
+        return [podsEntryComponents.firstObject isEqualToString:@"PODS:"] || [podsEntryComponents.firstObject length] == 0;
     }
     return NO;
 }
@@ -196,6 +215,12 @@
                 dependencyInfo.order = [self.explicitDependencyOrder[dependency] unsignedIntegerValue];
             }
         }
+        
+        DependencyInformation* appInfo = [DependencyInformation new];
+        appInfo.name = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleName"];
+        appInfo.version = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleVersion"];
+        appInfo.order = 0;
+        _versionInformation[appInfo.name] = appInfo;
     }
     return _versionInformation;
 }

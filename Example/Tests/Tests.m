@@ -10,7 +10,7 @@
 @interface VersionIntrospection(Testing)
 
 @property (nonatomic,strong) NSString* podfileLockContent;
-
+-(BOOL)fillDependencyInformation;
 @end
 
 SpecBegin(InitialSpecs)
@@ -24,6 +24,19 @@ describe(@"parser", ^{
         expect([versionForDependency count]).to.equal(0);
     });
     
+    it(@"can parse sample file", ^{
+        NSURL* sampleFileURL = [[NSBundle bundleForClass:[self class]] URLForResource:@"Podfile_lock_parsing-sorting" withExtension:@"txt"];
+        NSError* error;
+        NSString* sampleFileContent = [NSString stringWithContentsOfURL:sampleFileURL encoding:NSUTF8StringEncoding error:&error];
+
+        [VersionIntrospection sharedIntrospection].podfileLockContent = sampleFileContent;
+        expect(sampleFileContent).notTo.beNil();
+        [[VersionIntrospection sharedIntrospection] fillDependencyInformation];
+        id versionForDependency = [VersionIntrospection sharedIntrospection].versionsForDependency;
+        expect(versionForDependency).beAKindOf([NSDictionary class]);
+        expect([versionForDependency count]).to.equal(3);
+    });
 });
+
 
 SpecEnd
