@@ -97,7 +97,7 @@
     BOOL success = [scanner scanUpToString:@"PODS:" intoString:nil];
     //read anything Before DEPENDENCIES:
     success = [scanner scanUpToString:@"DEPENDENCIES:" intoString:&podsSection];
-    [scanner scanUpToString:@"SPEC CHECKSUMS" intoString:nil];//ingore evryting before checksum
+    [scanner scanUpToString:@"SPEC CHECKSUMS" intoString:nil];//ingore everyting before checksum
     success = success && [scanner scanUpToString:@"COCOAPODS" intoString:&checksumSection];
     
     if (success)
@@ -118,7 +118,7 @@
     BOOL success = YES;
     NSArray* podsSectionLines = [podsSection componentsSeparatedByString:@"\n"];
     for (NSString* entry in podsSectionLines) {
-        success = success & [self parsePodsEntry:entry];
+        success &= [self parsePodsEntry:entry];
     }
     return success;
 }
@@ -161,7 +161,7 @@
     BOOL success = YES;
     NSArray* podsSectionLines = [checksumSection componentsSeparatedByString:@"\n"];
     for (NSString* entry in podsSectionLines) {
-        success = success & [self parseChecksumEntry:entry];
+        success &= [self parseChecksumEntry:entry];
     }
     return success;
 }
