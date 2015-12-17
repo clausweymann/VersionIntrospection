@@ -1,4 +1,7 @@
-source 'https://github.com/CocoaPods/Specs.git'
+podversion = String.new(`pod --version`)
+if (Gem::Version.new(podversion) >= Gem::Version.new('0.35.0'))
+	source 'https://github.com/CocoaPods/Specs.git'
+end
 
 target 'VersionIntrospection', :exclusive => true do
   pod "VersionIntrospection", :path => "../"
@@ -13,6 +16,11 @@ end
 
 post_install do | installer |
   require 'fileutils'
-  FileUtils.cp_r('Pods/Target Support Files/Pods-VersionIntrospection/Pods-VersionIntrospection-Acknowledgements.plist', 'Acknowledgements.plist', :remove_destination => true)
-  FileUtils.cp_r('Pods/Target Support Files/Pods-VersionIntrospection/Pods-VersionIntrospection-Acknowledgements.markdown', 'Acknowledgements.markdown', :remove_destination => true)
+  if (Gem::Version.new(podversion) >= Gem::Version.new('0.35.0'))
+  	FileUtils.cp_r('Pods/Target Support Files/Pods-VersionIntrospection/Pods-VersionIntrospection-Acknowledgements.plist', 'Acknowledgements.plist', :remove_destination => true)
+  	FileUtils.cp_r('Pods/Target Support Files/Pods-VersionIntrospection/Pods-VersionIntrospection-Acknowledgements.markdown', 'Acknowledgements.markdown', :remove_destination => true)
+  else
+  	FileUtils.cp_r('Pods/Target Support Files/Pods-VersionIntrospection/Pods-VersionIntrospection-acknowledgements.plist', 'Acknowledgements.plist', :remove_destination => true)
+  	FileUtils.cp_r('Pods/Target Support Files/Pods-VersionIntrospection/Pods-VersionIntrospection-acknowledgements.markdown', 'Acknowledgements.markdown', :remove_destination => true)
+  end
 end

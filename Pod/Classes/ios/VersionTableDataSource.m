@@ -12,6 +12,10 @@
 
 #import <TSMarkdownParser/TSMarkdownParser.h>
 
+NSString *kSectionKey_title = @"versionIntrospectionSectionTitle";
+NSString *kSectionTitle_version = @"versionIntrospectionSectionTitleVersions";
+NSString *kSectionTitle_license = @"versionIntrospectionSectionTitleLicenses";
+NSString *kSectionKey_data = @"versionIntrospectionSectionData";
 @interface VersionTableDataSource()
 
 @property (nonatomic,strong) NSMutableArray* sortedDataSource;
@@ -39,8 +43,7 @@
     static NSString* reuseIdentifierLicenseMarkdown = @"versionIntrospectionLicenseMarkdownCell";
      [tableView registerNib:[UINib nibWithNibName:@"LicenseTableViewCell" bundle:[NSBundle mainBundle]]forCellReuseIdentifier:reuseIdentifierLicenseMarkdown];
     
-    NSArray* sectionArray = [self arrayForSection:[indexPath section]];
-    id dataItem = sectionArray[[indexPath row]];
+    id dataItem = [self dataItemAtIndexPath:indexPath];
     
     if ([dataItem isKindOfClass: [DependencyInformation class]]) {
         DependencyInformation* dependencyInfo = (DependencyInformation*)dataItem;
@@ -67,15 +70,20 @@
     return cell;
 }
 
+-(id)dataItemAtIndexPath:(NSIndexPath*)indexPath
+{
+    NSArray* sectionArray = [self arrayForSection:[indexPath section]];
+    return sectionArray[[indexPath row]];
+}
+
 -(NSArray*)arrayForSection:(NSInteger)section
 {
-    NSObject* sectionDictKey = [self.dataSource allKeys][section];
-    return self.dataSource[sectionDictKey];
+    return self.dataSource[section][kSectionKey_data];
 }
 
 -(NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section
 {
-    return [self.dataSource allKeys][section];
+    return self.dataSource[section][kSectionKey_title];
 }
 
 -(NSMutableArray *)sortedDataSource
@@ -111,13 +119,15 @@
     return _licenseMarkdown;
 }
 
--(NSDictionary*)dataSource
+-(NSArray*)dataSource
 {
+    NSMutableArray* datasource = [NSMutableArray array];
     if(self.licenseMarkdown.length > 0)
     {
-        return @{@"Dependencies:":self.sortedDataSource, @"Licenses:":@[self.licenseMarkdown]};
+        [datasource addObject:@{kSectionKey_title:kSectionTitle_license,kSectionKey_data:@[self.licenseMarkdown]}];
     }
-    return @{@"Dependencies:":self.sortedDataSource};
+    [datasource addObject:@{kSectionKey_title:kSectionTitle_version,kSectionKey_data:self.sortedDataSource}];
+    return datasource;
 }
 
 -(void)setExplicitDependencyOrder:(NSDictionary *)explicitDependencyOrder
