@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		373AE9AD1B3177B30017693D /* Podfile_lock_parsing-sorting.txt in Resources */ = {isa = PBXBuildFile; fileRef = 373AE9AC1B3177B30017693D /* Podfile_lock_parsing-sorting.txt */; };
+		37D0BBB51B70EFB8007BB3AC /* gitHash.txt in Resources */ = {isa = PBXBuildFile; fileRef = 37D0BBB41B70EFB8007BB3AC /* gitHash.txt */; };
 		37D787C11AE656920024038E /* Podfile.lock in Resources */ = {isa = PBXBuildFile; fileRef = 37D787C01AE656920024038E /* Podfile.lock */; };
 		38AF4465D3ED3A301D06B70A /* libPods-Tests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0C3B0FF4A2C7353A4CB609EC /* libPods-Tests.a */; };
 		6003F58E195388D20070C39A /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6003F58D195388D20070C39A /* Foundation.framework */; };
@@ -42,6 +43,7 @@
 		1D47B4861A685D51176ABBA0 /* Pods-VersionIntrospection.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-VersionIntrospection.debug.xcconfig"; path = "Pods/Target Support Files/Pods-VersionIntrospection/Pods-VersionIntrospection.debug.xcconfig"; sourceTree = "<group>"; };
 		208D4B93446C196763F6886A /* Pods-Tests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tests.release.xcconfig"; path = "Pods/Target Support Files/Pods-Tests/Pods-Tests.release.xcconfig"; sourceTree = "<group>"; };
 		373AE9AC1B3177B30017693D /* Podfile_lock_parsing-sorting.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "Podfile_lock_parsing-sorting.txt"; sourceTree = "<group>"; };
+		37D0BBB41B70EFB8007BB3AC /* gitHash.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = gitHash.txt; sourceTree = "<group>"; };
 		37D787C01AE656920024038E /* Podfile.lock */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Podfile.lock; sourceTree = "<group>"; };
 		4A14E4400588DA1FF90D011C /* LICENSE */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = LICENSE; path = ../LICENSE; sourceTree = "<group>"; };
 		4B183A739E647DF6B1C02814 /* Pods-Tests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Tests/Pods-Tests.debug.xcconfig"; sourceTree = "<group>"; };
@@ -100,6 +102,7 @@
 		6003F581195388D10070C39A = {
 			isa = PBXGroup;
 			children = (
+				37D0BBB41B70EFB8007BB3AC /* gitHash.txt */,
 				37D787C01AE656920024038E /* Podfile.lock */,
 				60FF7A9C1954A5C5007DD14C /* Podspec Metadata */,
 				6003F593195388D20070C39A /* VersionIntrospection */,
@@ -205,6 +208,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 6003F5BF195388D20070C39A /* Build configuration list for PBXNativeTarget "VersionIntrospection" */;
 			buildPhases = (
+				37D0BBB31B70CCD5007BB3AC /* ShellScript */,
 				563CC4931A50050D19EF54D2 /* Check Pods Manifest.lock */,
 				6003F586195388D20070C39A /* Sources */,
 				6003F587195388D20070C39A /* Frameworks */,
@@ -279,6 +283,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				37D0BBB51B70EFB8007BB3AC /* gitHash.txt in Resources */,
 				6003F5A9195388D20070C39A /* Images.xcassets in Resources */,
 				37D787C11AE656920024038E /* Podfile.lock in Resources */,
 				6003F5A1195388D20070C39A /* Main.storyboard in Resources */,
@@ -298,6 +303,19 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		37D0BBB31B70CCD5007BB3AC /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "GIT_HASH=$(git rev-parse HEAD)\necho \"${PRODUCT_NAME}: $GIT_HASH\" >> gitHash.txt\n";
+		};
 		38EA43FBCAA42D495289F15B /* Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;

@@ -29,11 +29,7 @@
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     static NSString* reuseIdentifier = @"versionIntrospectionCell";
-    //static dispatch_once_t onceToken;
-    //dispatch_once(&onceToken, ^{
-        //[tableView registerClass:[UITableViewCell class] forCellReuseIdentifier:reuseIdentifier];
-        [tableView registerNib:[UINib nibWithNibName:@"VersionTableViewCell" bundle:[NSBundle mainBundle]] forCellReuseIdentifier:reuseIdentifier];
-    //});
+    [tableView registerNib:[UINib nibWithNibName:@"VersionTableViewCell" bundle:[NSBundle mainBundle]] forCellReuseIdentifier:reuseIdentifier];
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:reuseIdentifier forIndexPath:indexPath];
     if (!cell) {
         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:reuseIdentifier];
@@ -58,10 +54,6 @@
     return [self.dataSource allKeys][section];
 }
 
-//-(NSArray *)sectionIndexTitlesForTableView:(UITableView *)tableView
-//{
-//    return [[VersionIntrospection sharedIntrospection].versionInformation allKeys];
-//}
 -(NSMutableArray *)sortedDataSource
 {
     if(!_sortedDataSource)
@@ -80,7 +72,6 @@
 -(NSDictionary*)dataSource
 {
     return @{@"Dependencies:":self.sortedDataSource};
-    //return @{@"Dependencies:":[VersionIntrospection sharedIntrospection].versionInformation};
 }
 
 -(void)setExplicitDependencyOrder:(NSDictionary *)explicitDependencyOrder

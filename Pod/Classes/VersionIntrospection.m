@@ -12,7 +12,8 @@
 @interface VersionIntrospection()
 
 @property (nonatomic,strong) NSString* podfileLockContent;
-
+@property (nonatomic,strong) NSString* devpodGitHashes;
+@property (nonatomic,strong) NSMutableDictionary* externalSources;
 @end
 
 @implementation VersionIntrospection
@@ -20,6 +21,7 @@
 @synthesize versionsForDependency = _versionsForDependency;
 @synthesize checksumForDependency = _checksumForDependency;
 @synthesize versionInformation = _versionInformation;
+@synthesize gitHashForExternalDependency = _gitHashForExternalDependency;
 
 #pragma mark - Public
 
@@ -74,12 +76,28 @@
     return _podfileLockContent;
 }
 
+-(NSString*)devpodGitHashes
+{
+    if(!_devpodGitHashes)
+    {
+        NSError* error;
+        NSURL* gitHashURL = [[NSBundle mainBundle] URLForResource:@"gitHash" withExtension:@"txt"];
+        _devpodGitHashes = [[NSString alloc] initWithContentsOfURL:gitHashURL encoding:NSUTF8StringEncoding error:&error];
+        if (!_devpodGitHashes) {
+            NSLog(@"ERROR: failed to read gitHash.txt, make sure you generated it in the build phase. %@", error);
+            return nil;
+        }
+    }
+    return _devpodGitHashes;
+}
+
 #pragma mark Parsing
 
 -(BOOL)fillDependencyInformation
 {
     _checksumForDependency = [NSMutableDictionary dictionary];
     _versionsForDependency = [NSMutableDictionary dictionary];
+    _externalSources = [NSMutableDictionary dictionary];
     
     NSString* content = self.podfileLockContent;
     if (!content || [content length] == 0) {
@@ -87,31 +105,31 @@
         return NO;
     }
     //NSLog(@"Podfile.lock:\n\t%@",content);
+    NSArray* sections = [content componentsSeparatedByString:@"\n\n"];
     
-    NSScanner *scanner = [[NSScanner alloc] initWithString:content];
-    //[scanner setCharactersToBeSkipped:[NSCharacterSet characterSetWithCharactersInString:@","]];
-    NSString* podsSection;
-    NSString* checksumSection;
+    NSString* podsSection = [self sectionWithPrefix:@"PODS:" fromSections:sections];
+    NSString* checksumSection  = [self sectionWithPrefix:@"SPEC CHECKSUMS:" fromSections:sections];
+    NSString* externalDepenencySection = [self sectionWithPrefix:@"EXTERNAL SOURCES:" fromSections:sections];
     
-    //ignore anything Before PODS:
-    BOOL success = [scanner scanUpToString:@"PODS:" intoString:nil];
-    //read anything Before DEPENDENCIES:
-    success = [scanner scanUpToString:@"DEPENDENCIES:" intoString:&podsSection];
-    [scanner scanUpToString:@"SPEC CHECKSUMS" intoString:nil];//ingore everyting before checksum
-    success = success && [scanner scanUpToString:@"COCOAPODS" intoString:&checksumSection];
-    
-    if (success)
+    if (podsSection && checksumSection && externalDepenencySection)
     {
-        //NSLog(@"\n\nPodsSection:\n\t%@",podsSection);
-        success = [self parsePodsSection:podsSection] & [self parseChecksumSection:checksumSection];
+        return [self parsePodsSection:podsSection] & [self parseChecksumSection:checksumSection] & [self parseExternalSourceSection:externalDepenencySection];
     }
     else
     {
         NSLog(@"WARNING: could not find PODS and/or CHECKSUM sections in Podfile.lock");
     }
-    return success;
+    return NO;
 }
-
+-(NSString*)sectionWithPrefix:(NSString*)prefix fromSections:(NSArray*)sections
+{
+    for (NSString* section in sections) {
+        if ([section hasPrefix:prefix]) {
+            return section;
+        }
+    }
+    return nil;
+}
 
 -(BOOL)parsePodsSection:(NSString*)podsSection
 {
@@ -159,12 +177,23 @@
 -(BOOL)parseChecksumSection:(NSString*)checksumSection
 {
     BOOL success = YES;
-    NSArray* podsSectionLines = [checksumSection componentsSeparatedByString:@"\n"];
-    for (NSString* entry in podsSectionLines) {
+    NSArray* sectionLines = [checksumSection componentsSeparatedByString:@"\n"];
+    for (NSString* entry in sectionLines) {
         success &= [self parseChecksumEntry:entry];
     }
     return success;
 }
+
+-(BOOL)parseEachEntryInSection:(NSString*)section seperatedBy:(NSString*)seperator withParseBlock:(BOOL(^)(NSString*))parseBlock
+{
+    BOOL success = YES;
+    NSArray* sectionLines = [section componentsSeparatedByString:seperator];
+    for (NSString* entry in sectionLines) {
+        success &= parseBlock(entry);
+    }
+    return success;
+}
+
 -(BOOL)parseChecksumEntry:(NSString*)checksumEntry
 {
     NSArray* podsEntryComponents = [checksumEntry componentsSeparatedByCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@":"]];
@@ -181,6 +210,48 @@
             return [podsEntryComponents.firstObject isEqualToString:@"SPEC CHECKSUMS"];
         }
     }
+    return NO;
+}
+
+-(BOOL)parseExternalSourceSection:(NSString*)externalSourceSection
+{
+    NSScanner *scanner = [[NSScanner alloc] initWithString:externalSourceSection];
+    BOOL success = [scanner scanString:@"EXTERNAL SOURCES:\n" intoString:nil];
+    NSString* dependencyName;
+    NSString* dependencyPath;
+    BOOL canParseExternalDepenency = YES;
+    while (success && canParseExternalDepenency) {
+        canParseExternalDepenency &= [scanner scanUpToString:@":path:" intoString:&dependencyName];
+        [scanner scanString:@":path:" intoString:nil];
+        canParseExternalDepenency &= [scanner scanUpToString:@"\n" intoString:&dependencyPath];
+        if([dependencyName length] > 0 && [dependencyPath length] > 0)
+        {
+            dependencyName = [dependencyName stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+            if ([dependencyName hasSuffix:@":"]) {
+                dependencyName = [dependencyName substringToIndex:[dependencyName length]-1];
+            }
+            self.externalSources[dependencyName] = [dependencyPath stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+        }
+    }
+    return success;
+}
+
+-(BOOL)parseExternalSourceEntry:(NSString*)externalSourceEntry
+{
+    NSArray* entryComponents = [externalSourceEntry componentsSeparatedByCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@":"]];
+    NSLog(@"entryComponents: %@", entryComponents);
+//    if ([podsEntryComponents count] == 2) {
+//        NSString* dependency = [podsEntryComponents[0] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+//        NSString* checksum = [podsEntryComponents[1] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+//        if ([checksum length] > 0 && [dependency length] > 0) {
+//            self.checksumForDependency[dependency] = checksum;
+//            return YES;
+//        }
+//        else
+//        {
+//            return [podsEntryComponents.firstObject isEqualToString:@"SPEC CHECKSUMS"];
+//        }
+//    }
     return NO;
 }
 
