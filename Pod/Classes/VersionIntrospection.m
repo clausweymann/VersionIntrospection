@@ -14,6 +14,7 @@
 @property (nonatomic,strong) NSString* podfileLockContent;
 @property (nonatomic,strong) NSString* devpodGitHashes;
 @property (nonatomic,strong) NSMutableDictionary* externalSources;
+@property (nonatomic, strong) NSDictionary* acknowledgements;
 @end
 
 @implementation VersionIntrospection
@@ -98,6 +99,7 @@
     _checksumForDependency = [NSMutableDictionary dictionary];
     _versionsForDependency = [NSMutableDictionary dictionary];
     _externalSources = [NSMutableDictionary dictionary];
+    _licenseForDependency = [NSMutableDictionary dictionary];
     
     NSString* content = self.podfileLockContent;
     if (!content || [content length] == 0) {
@@ -119,6 +121,17 @@
     {
         NSLog(@"WARNING: could not find PODS and/or CHECKSUM sections in Podfile.lock");
     }
+    NSString* acknowlegementPath = [[NSBundle mainBundle] pathForResource:@"Acknowledgements" ofType:@"plist"];
+    self.acknowledgements = [NSDictionary dictionaryWithContentsOfFile:acknowlegementPath];
+    NSArray* acknowledgementItems = self.acknowledgements[@"PreferenceSpecifiers"];
+    for (NSDictionary* acknowledgementItem in acknowledgementItems) {
+        NSString* title = acknowledgementItem[@"title"];
+        if (title.length > 0 && ![title isEqualToString:@"Acknowledgements"]) {
+            NSString* copyrightNotice = acknowledgementItem[@"footer"];
+            self.licenseForDependency[title] = copyrightNotice;
+        }
+    }
+    
     return NO;
 }
 -(NSString*)sectionWithPrefix:(NSString*)prefix fromSections:(NSArray*)sections

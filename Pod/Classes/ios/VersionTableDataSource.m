@@ -10,6 +10,8 @@
 #import "VersionIntrospection.h"
 #import "DependencyInformation.h"
 
+#import <TSMarkdownParser/TSMarkdownParser.h>
+
 @interface VersionTableDataSource()
 
 @property (nonatomic,strong) NSMutableArray* sortedDataSource;
@@ -27,18 +29,40 @@
     return [[self arrayForSection:section] count];
 }
 
-- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-    static NSString* reuseIdentifier = @"versionIntrospectionCell";
-    [tableView registerNib:[UINib nibWithNibName:@"VersionTableViewCell" bundle:[NSBundle mainBundle]] forCellReuseIdentifier:reuseIdentifier];
-    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:reuseIdentifier forIndexPath:indexPath];
-    if (!cell) {
-        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:reuseIdentifier];
-    }
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    UITableViewCell *cell;
+    
+    static NSString* reuseIdentifierDepenencyInfo = @"versionIntrospectionDependencyInfoCell";
+    [tableView registerNib:[UINib nibWithNibName:@"VersionTableViewCell" bundle:[NSBundle mainBundle]] forCellReuseIdentifier:reuseIdentifierDepenencyInfo];
+    
+    static NSString* reuseIdentifierLicenseMarkdown = @"versionIntrospectionLicenseMarkdownCell";
+     [tableView registerNib:[UINib nibWithNibName:@"LicenseTableViewCell" bundle:[NSBundle mainBundle]]forCellReuseIdentifier:reuseIdentifierLicenseMarkdown];
+    
     NSArray* sectionArray = [self arrayForSection:[indexPath section]];
-    DependencyInformation* dependencyInfo = sectionArray[[indexPath row]];
-    ((UILabel*)[cell viewWithTag:10]).text = dependencyInfo.name;
-    ((UILabel*)[cell viewWithTag:11]).text = dependencyInfo.version;
-    ((UILabel*)[cell viewWithTag:12]).text = dependencyInfo.gitHash;
+    id dataItem = sectionArray[[indexPath row]];
+    
+    if ([dataItem isKindOfClass: [DependencyInformation class]]) {
+        DependencyInformation* dependencyInfo = (DependencyInformation*)dataItem;
+        cell = [tableView dequeueReusableCellWithIdentifier:reuseIdentifierDepenencyInfo forIndexPath:indexPath];
+        if (!cell) {
+            cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:reuseIdentifierDepenencyInfo];
+        }
+        ((UILabel*)[cell viewWithTag:10]).text = dependencyInfo.name;
+        ((UILabel*)[cell viewWithTag:11]).text = dependencyInfo.version;
+        ((UILabel*)[cell viewWithTag:12]).text = dependencyInfo.gitHash;
+    }
+    else
+    {
+        if ([dataItem isKindOfClass:[NSAttributedString class]]) {
+            cell = [tableView dequeueReusableCellWithIdentifier:reuseIdentifierLicenseMarkdown forIndexPath:indexPath];
+            if (!cell) {
+                cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:reuseIdentifierLicenseMarkdown];
+            }
+            ((UITextView*)[cell viewWithTag:20]).attributedText = dataItem;
+        }
+    }
+    
     
     return cell;
 }
@@ -69,8 +93,30 @@
     }
     return _sortedDataSource;
 }
+-(NSAttributedString*)licenseMarkdown
+{
+    if(!_licenseMarkdown)
+    {
+        NSString* markdownPath = [[NSBundle mainBundle] pathForResource:@"Acknowledgements" ofType:@"markdown"];
+        NSError* error;
+        NSString* markdownString = [NSString stringWithContentsOfFile:markdownPath encoding:NSUTF8StringEncoding error:&error];
+        if(error)
+        {
+            NSLog(@"error reading Acknowledgements.markdown, make sure you copied it during post install phase in your podfile");
+            return nil;
+        }
+        NSAttributedString *string = [[TSMarkdownParser standardParser] attributedStringFromMarkdown:markdownString];
+        _licenseMarkdown = string ?: [[NSAttributedString alloc] initWithString:@""];
+    }
+    return _licenseMarkdown;
+}
+
 -(NSDictionary*)dataSource
 {
+    if(self.licenseMarkdown.length > 0)
+    {
+        return @{@"Dependencies:":self.sortedDataSource, @"Licenses:":@[self.licenseMarkdown]};
+    }
     return @{@"Dependencies:":self.sortedDataSource};
 }
 

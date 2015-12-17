@@ -10,3 +10,9 @@ target 'Tests', :exclusive => true do
   pod 'Specta'
   pod 'Expecta'
 end
+
+post_install do | installer |
+  require 'fileutils'
+  FileUtils.cp_r('Pods/Target Support Files/Pods-VersionIntrospection/Pods-VersionIntrospection-Acknowledgements.plist', 'Acknowledgements.plist', :remove_destination => true)
+  FileUtils.cp_r('Pods/Target Support Files/Pods-VersionIntrospection/Pods-VersionIntrospection-Acknowledgements.markdown', 'Acknowledgements.markdown', :remove_destination => true)
+end

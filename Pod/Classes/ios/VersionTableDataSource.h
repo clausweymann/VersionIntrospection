@@ -10,7 +10,7 @@
 #import <UIKit/UIKit.h>
 
 @interface VersionTableDataSource : NSObject<UITableViewDataSource>
-
+@property (nonatomic, strong) NSAttributedString* licenseMarkdown;
 @property (nonatomic, strong) NSDictionary* explicitDependencyOrder;
 
 @end

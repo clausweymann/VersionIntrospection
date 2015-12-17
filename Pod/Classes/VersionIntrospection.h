@@ -12,6 +12,7 @@
 
 @property (nonatomic, strong, readonly) NSMutableDictionary* versionsForDependency;
 @property (nonatomic, strong, readonly) NSMutableDictionary* checksumForDependency;
+@property (nonatomic, strong, readonly) NSMutableDictionary* licenseForDependency;
 @property (nonatomic, strong, readonly) NSMutableDictionary* versionInformation;
 @property (nonatomic, strong, readonly) NSMutableDictionary* gitHashForExternalDependency;
 
