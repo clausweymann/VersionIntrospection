@@ -16,11 +16,24 @@ end
 
 post_install do | installer |
   require 'fileutils'
-  if (Gem::Version.new(podversion) >= Gem::Version.new('0.35.0'))
-  	FileUtils.cp_r('Pods/Target Support Files/Pods-VersionIntrospection/Pods-VersionIntrospection-Acknowledgements.plist', 'Acknowledgements.plist', :remove_destination => true)
-  	FileUtils.cp_r('Pods/Target Support Files/Pods-VersionIntrospection/Pods-VersionIntrospection-Acknowledgements.markdown', 'Acknowledgements.markdown', :remove_destination => true)
-  else
-  	FileUtils.cp_r('Pods/Target Support Files/Pods-VersionIntrospection/Pods-VersionIntrospection-acknowledgements.plist', 'Acknowledgements.plist', :remove_destination => true)
-  	FileUtils.cp_r('Pods/Target Support Files/Pods-VersionIntrospection/Pods-VersionIntrospection-acknowledgements.markdown', 'Acknowledgements.markdown', :remove_destination => true)
-  end
+  puts Dir.pwd
+  acknowledgementFilePlist = 'Pods/Target Support Files/Pods-VersionIntrospection/Pods-VersionIntrospection-Acknowledgements.plist'
+  acknowledgementFilePlistFallback = 'Pods/Target Support Files/Pods-VersionIntrospection/Pods-VersionIntrospection-acknowledgements.plist'
+	if (File.exist?(acknowledgementFilePlist))
+		FileUtils.cp_r(acknowledgementFilePlist, 'Acknowledgements.plist', :remove_destination => true)
+	else
+		if (File.exist?(acknowledgementFilePlistFallback)
+			FileUtils.cp_r(acknowledgementFilePlistFallback, 'Acknowledgements.plist', :remove_destination => true)
+		end
+	end
+	
+	acknowledgementFileMarkdown = 'Pods/Target Support Files/Pods-VersionIntrospection/Pods-VersionIntrospection-Acknowledgements.markdown'
+	acknowledgementFileMarkdownFallback = 'Pods/Target Support Files/Pods-VersionIntrospection/Pods-VersionIntrospection-acknowledgements.markdown'
+	if (File.exist?(acknowledgementFileMarkdown))
+		FileUtils.cp_r(acknowledgementFileMarkdown, 'Acknowledgements.markdown', :remove_destination => true)
+	else
+		if (File.exist?(acknowledgementFileMarkdownFallback)
+			FileUtils.cp_r(acknowledgementFileMarkdownFallback, 'Acknowledgements.markdown', :remove_destination => true)
+		end
+	end
 end
