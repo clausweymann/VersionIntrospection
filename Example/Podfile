@@ -22,7 +22,7 @@ post_install do | installer |
 	if (File.exist?(acknowledgementFilePlist))
 		FileUtils.cp_r(acknowledgementFilePlist, 'Acknowledgements.plist', :remove_destination => true)
 	else
-		if (File.exist?(acknowledgementFilePlistFallback)
+		if (File.exist?(acknowledgementFilePlistFallback))
 			FileUtils.cp_r(acknowledgementFilePlistFallback, 'Acknowledgements.plist', :remove_destination => true)
 		end
 	end
@@ -32,7 +32,7 @@ post_install do | installer |
 	if (File.exist?(acknowledgementFileMarkdown))
 		FileUtils.cp_r(acknowledgementFileMarkdown, 'Acknowledgements.markdown', :remove_destination => true)
 	else
-		if (File.exist?(acknowledgementFileMarkdownFallback)
+		if (File.exist?(acknowledgementFileMarkdownFallback))
 			FileUtils.cp_r(acknowledgementFileMarkdownFallback, 'Acknowledgements.markdown', :remove_destination => true)
 		end
 	end
