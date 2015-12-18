@@ -16,6 +16,9 @@ NSString *kSectionKey_title = @"versionIntrospectionSectionTitle";
 NSString *kSectionTitle_version = @"versionIntrospectionSectionTitleVersions";
 NSString *kSectionTitle_license = @"versionIntrospectionSectionTitleLicenses";
 NSString *kSectionKey_data = @"versionIntrospectionSectionData";
+NSString *kVersionIntrospection_VersionCell = @"versionIntrospectionVersionCell";
+NSString *kVersionIntrospection_LicenseCell = @"versionIntrospectionLicenseCell";
+
 @interface VersionTableDataSource()
 
 @property (nonatomic,strong) NSMutableArray* sortedDataSource;
@@ -37,19 +40,16 @@ NSString *kSectionKey_data = @"versionIntrospectionSectionData";
 {
     UITableViewCell *cell;
     
-    static NSString* reuseIdentifierDepenencyInfo = @"versionIntrospectionDependencyInfoCell";
-    [tableView registerNib:[UINib nibWithNibName:@"VersionTableViewCell" bundle:[NSBundle mainBundle]] forCellReuseIdentifier:reuseIdentifierDepenencyInfo];
-    
-    static NSString* reuseIdentifierLicenseMarkdown = @"versionIntrospectionLicenseMarkdownCell";
-     [tableView registerNib:[UINib nibWithNibName:@"LicenseTableViewCell" bundle:[NSBundle mainBundle]]forCellReuseIdentifier:reuseIdentifierLicenseMarkdown];
+    [tableView registerNib:[UINib nibWithNibName:@"VersionTableViewCell" bundle:[NSBundle mainBundle]] forCellReuseIdentifier:kVersionIntrospection_VersionCell];
+    [tableView registerNib:[UINib nibWithNibName:@"LicenseTableViewCell" bundle:[NSBundle mainBundle]]forCellReuseIdentifier:kVersionIntrospection_LicenseCell];
     
     id dataItem = [self dataItemAtIndexPath:indexPath];
     
     if ([dataItem isKindOfClass: [DependencyInformation class]]) {
         DependencyInformation* dependencyInfo = (DependencyInformation*)dataItem;
-        cell = [tableView dequeueReusableCellWithIdentifier:reuseIdentifierDepenencyInfo forIndexPath:indexPath];
+        cell = [tableView dequeueReusableCellWithIdentifier:kVersionIntrospection_VersionCell forIndexPath:indexPath];
         if (!cell) {
-            cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:reuseIdentifierDepenencyInfo];
+            cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kVersionIntrospection_VersionCell];
         }
         ((UILabel*)[cell viewWithTag:10]).text = dependencyInfo.name;
         ((UILabel*)[cell viewWithTag:11]).text = dependencyInfo.version;
@@ -58,9 +58,9 @@ NSString *kSectionKey_data = @"versionIntrospectionSectionData";
     else
     {
         if ([dataItem isKindOfClass:[NSAttributedString class]]) {
-            cell = [tableView dequeueReusableCellWithIdentifier:reuseIdentifierLicenseMarkdown forIndexPath:indexPath];
+            cell = [tableView dequeueReusableCellWithIdentifier:kVersionIntrospection_LicenseCell forIndexPath:indexPath];
             if (!cell) {
-                cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:reuseIdentifierLicenseMarkdown];
+                cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kVersionIntrospection_LicenseCell];
             }
             ((UITextView*)[cell viewWithTag:20]).attributedText = dataItem;
         }

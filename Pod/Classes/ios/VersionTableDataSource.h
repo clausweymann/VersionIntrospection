@@ -13,6 +13,8 @@ extern NSString *kSectionKey_title;
 extern NSString *kSectionKey_data;
 extern NSString *kSectionTitle_version;
 extern NSString *kSectionTitle_license;
+extern NSString *kVersionIntrospection_VersionCell;
+extern NSString *kVersionIntrospection_LicenseCell;
 
 @interface VersionTableDataSource : NSObject<UITableViewDataSource>
 @property (nonatomic, strong) NSAttributedString* licenseMarkdown;
