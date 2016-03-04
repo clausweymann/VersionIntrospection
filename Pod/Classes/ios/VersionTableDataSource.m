@@ -101,19 +101,47 @@ NSString *kVersionIntrospection_LicenseCell = @"versionIntrospectionLicenseCell"
     }
     return _sortedDataSource;
 }
+
 -(NSAttributedString*)licenseMarkdown
 {
     if(!_licenseMarkdown)
     {
-        NSString* markdownPath = [[NSBundle mainBundle] pathForResource:@"Acknowledgements" ofType:@"markdown"];
-        NSError* error;
-        NSString* markdownString = [NSString stringWithContentsOfFile:markdownPath encoding:NSUTF8StringEncoding error:&error];
-        if(error)
-        {
-            NSLog(@"error reading Acknowledgements.markdown, make sure you copied it during post install phase in your podfile");
-            return nil;
+        NSString* markdownString;
+        if ([self.licenseIgnoreList count] > 0) {
+            NSString* acknowledgementsPlistPath = [[NSBundle mainBundle] pathForResource:@"Acknowledgements" ofType:@"plist"];
+            NSDictionary* licenseDictionary = [NSDictionary dictionaryWithContentsOfFile:acknowledgementsPlistPath];
+            NSMutableDictionary* licenseForDependency = [NSMutableDictionary dictionary];
+            for (NSDictionary* entryDict in licenseDictionary[@"PreferenceSpecifiers"]) {
+                NSString* dependency = entryDict[@"Title"];
+                NSString* license = entryDict[@"FooterText"];
+                if ([dependency length] > 0 && [license length] > 0 && ![self.licenseIgnoreList containsObject:dependency]) {
+                    licenseForDependency[dependency] = license;
+                }
+            }
+            NSMutableArray* orderedDependencies = [NSMutableArray arrayWithArray:[[licenseForDependency allKeys] sortedArrayUsingSelector:@selector(compare:)]];
+            NSString* headerTitle = @"Acknowledgements";
+            [orderedDependencies removeObject:headerTitle];
+            
+            NSMutableString* generatedMarkdown = [NSMutableString stringWithFormat:@"# %@\n\n %@\n\n", headerTitle, licenseForDependency[headerTitle]];
+            for (NSString* dependency in orderedDependencies) {
+                [generatedMarkdown appendFormat:@"## %@\n\n%@\n\n",dependency,licenseForDependency[dependency]];
+            }
+            markdownString = [NSString stringWithString:generatedMarkdown];
         }
+        else
+        {
+            NSString* acknowledgementsMarkdownPath = [[NSBundle mainBundle] pathForResource:@"Acknowledgements" ofType:@"markdown"];
+            NSError* error;
+            markdownString = [NSString stringWithContentsOfFile:acknowledgementsMarkdownPath encoding:NSUTF8StringEncoding error:&error];
+            if(error)
+            {
+                NSLog(@"ERROR while reading Acknowledgements.markdown, make sure you copied it during post install phase in your podfile");
+                return nil;
+            }
+        }
+        
         NSAttributedString *string = [[TSMarkdownParser standardParser] attributedStringFromMarkdown:markdownString];
+        
         _licenseMarkdown = string ?: [[NSAttributedString alloc] initWithString:@""];
     }
     return _licenseMarkdown;
