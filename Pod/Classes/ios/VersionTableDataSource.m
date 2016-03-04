@@ -118,9 +118,7 @@ NSString *kVersionIntrospection_LicenseCell = @"versionIntrospectionLicenseCell"
                     licenseForDependency[dependency] = license;
                 }
             }
-            NSMutableArray* orderedDependencies = [NSMutableArray arrayWithArray:[[licenseForDependency allKeys] sortedArrayUsingComparator:^NSComparisonResult(id  _Nonnull obj1, id  _Nonnull obj2) {
-                return [obj1 compare:obj2];
-            }]];
+            NSMutableArray* orderedDependencies = [NSMutableArray arrayWithArray:[[licenseForDependency allKeys] sortedArrayUsingSelector:@selector(compare:)]];
             NSString* headerTitle = @"Acknowledgements";
             [orderedDependencies removeObject:headerTitle];
             
