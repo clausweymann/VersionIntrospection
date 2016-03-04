@@ -110,7 +110,6 @@ NSString *kVersionIntrospection_LicenseCell = @"versionIntrospectionLicenseCell"
         if ([self.licenseIgnoreList count] > 0) {
             NSString* plistPath = [[NSBundle mainBundle] pathForResource:@"Acknowledgements" ofType:@"plist"];
             NSDictionary* licenseDictionary = [NSDictionary dictionaryWithContentsOfFile:plistPath];
-            NSLog(@"%@",licenseDictionary);
             NSMutableDictionary* licenseForDependency = [NSMutableDictionary dictionary];
             for (NSDictionary* entryDict in licenseDictionary[@"PreferenceSpecifiers"]) {
                 NSString* dependency = entryDict[@"Title"];
@@ -119,14 +118,14 @@ NSString *kVersionIntrospection_LicenseCell = @"versionIntrospectionLicenseCell"
                     licenseForDependency[dependency] = license;
                 }
             }
-            NSMutableArray* orderdDependencies = [NSMutableArray arrayWithArray:[[licenseForDependency allKeys] sortedArrayUsingComparator:^NSComparisonResult(id  _Nonnull obj1, id  _Nonnull obj2) {
+            NSMutableArray* orderedDependencies = [NSMutableArray arrayWithArray:[[licenseForDependency allKeys] sortedArrayUsingComparator:^NSComparisonResult(id  _Nonnull obj1, id  _Nonnull obj2) {
                 return [obj1 compare:obj2];
             }]];
             NSString* headerTitle = @"Acknowledgements";
-            [orderdDependencies removeObject:headerTitle];
+            [orderedDependencies removeObject:headerTitle];
             
             NSMutableString* generatedMarkdown = [NSMutableString stringWithFormat:@"# %@\n\n %@\n\n", headerTitle, licenseForDependency[headerTitle]];
-            for (NSString* dependency in orderdDependencies) {
+            for (NSString* dependency in orderedDependencies) {
                 [generatedMarkdown appendFormat:@"## %@\n\n%@\n\n",dependency,licenseForDependency[dependency]];
             }
             markdownString = [NSString stringWithString:generatedMarkdown];
