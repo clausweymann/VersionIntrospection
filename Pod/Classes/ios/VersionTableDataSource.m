@@ -108,8 +108,8 @@ NSString *kVersionIntrospection_LicenseCell = @"versionIntrospectionLicenseCell"
     {
         NSString* markdownString;
         if ([self.licenseIgnoreList count] > 0) {
-            NSString* plistPath = [[NSBundle mainBundle] pathForResource:@"Acknowledgements" ofType:@"plist"];
-            NSDictionary* licenseDictionary = [NSDictionary dictionaryWithContentsOfFile:plistPath];
+            NSString* acknowledgementsPlistPath = [[NSBundle mainBundle] pathForResource:@"Acknowledgements" ofType:@"plist"];
+            NSDictionary* licenseDictionary = [NSDictionary dictionaryWithContentsOfFile:acknowledgementsPlistPath];
             NSMutableDictionary* licenseForDependency = [NSMutableDictionary dictionary];
             for (NSDictionary* entryDict in licenseDictionary[@"PreferenceSpecifiers"]) {
                 NSString* dependency = entryDict[@"Title"];
@@ -132,9 +132,9 @@ NSString *kVersionIntrospection_LicenseCell = @"versionIntrospectionLicenseCell"
         }
         else
         {
-            NSString* markdownPath = [[NSBundle mainBundle] pathForResource:@"Acknowledgements" ofType:@"markdown"];
+            NSString* acknowledgementsMarkdownPath = [[NSBundle mainBundle] pathForResource:@"Acknowledgements" ofType:@"markdown"];
             NSError* error;
-            markdownString = [NSString stringWithContentsOfFile:markdownPath encoding:NSUTF8StringEncoding error:&error];
+            markdownString = [NSString stringWithContentsOfFile:acknowledgementsMarkdownPath encoding:NSUTF8StringEncoding error:&error];
             if(error)
             {
                 NSLog(@"ERROR while reading Acknowledgements.markdown, make sure you copied it during post install phase in your podfile");
