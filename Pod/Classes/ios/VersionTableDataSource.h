@@ -19,6 +19,7 @@ extern NSString *kVersionIntrospection_LicenseCell;
 @interface VersionTableDataSource : NSObject<UITableViewDataSource>
 @property (nonatomic, strong) NSAttributedString* licenseMarkdown;
 @property (nonatomic, strong) NSDictionary* explicitDependencyOrder;
+@property (nonatomic, strong) NSSet* licenseIgnoreList;
 
 -(id)dataItemAtIndexPath:(NSIndexPath*)indexPath;
 
